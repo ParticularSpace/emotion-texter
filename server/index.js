@@ -25,7 +25,7 @@ mongoose.connect('mongodb://localhost:27017/chat-app', {
 // Routes
 const User = require('./models/User');
 const bcrypt = require('bcryptjs');
-
+ 
 // Registration route
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
