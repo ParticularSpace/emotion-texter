@@ -2,13 +2,16 @@ const express = require('express');
 const http = require('http');
 const socketio = require('socket.io');
 const mongoose = require('mongoose');
+require('dotenv').config();
+
 
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
 const openai = require('openai');
-openai.apiKey = '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'; 
+openai.apiKey = process.env.OPENAI_API_KEY;
+
 
 
 // MongoDB connection
