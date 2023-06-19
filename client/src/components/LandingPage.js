@@ -1,5 +1,6 @@
 import React from 'react';
 import { Typography, Button } from '@mui/material';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -12,11 +13,16 @@ const Container = styled.div`
 `;
 
 const Title = styled(Typography)`
-  margin-bottom: 2rem;
+  margin-bottom: 5rem;
 `;
 
 const StyledButton = styled(Button)`
   margin-top: 2rem;
+  margin-bottom: 2rem;
+`;
+
+const StyledLink = styled(Link)`
+  text-decoration: none;
 `;
 
 const LandingPage = () => {
@@ -26,13 +32,18 @@ const LandingPage = () => {
         Welcome to Emotion Texter!
       </Title>
       <Typography variant="h6">
-        Experience the new way of understanding emotions in your conversations.
-        Connect with your friends, family and colleagues on a deeper level.
-        Sign up today and get started.
+        Emotions are hard to express through text. We're here to help!
       </Typography>
-      <StyledButton variant="contained" color="primary" size="large">
-        Sign Up
-      </StyledButton>
+      <StyledLink to="/tryit">
+        <StyledButton variant="contained" color="primary" size="large">
+          Try it out
+        </StyledButton>
+      </StyledLink>
+      <StyledLink to="/login">
+        <StyledButton variant="contained" color="secondary" size="large">
+          Login
+        </StyledButton>
+      </StyledLink>
     </Container>
   );
 };
