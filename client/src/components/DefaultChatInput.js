@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { TextField, Button, Grid } from '@mui/material';
+import axios from 'axios';
 
-const DefaultChatInput = ({ handleSend }) => {
+const DefaultChatInput = ({ setMessages, setIsTyping }) => {
   const [userMessage, setUserMessage] = useState('');
 
   const handleFormSubmit = (e) => {
@@ -10,10 +11,42 @@ const DefaultChatInput = ({ handleSend }) => {
     setUserMessage('');
   };
 
+  const handleSend = async (message) => {
+    const newMessage = {
+      sender: 'You',
+      content: message,
+    };
+
+    // Add user's message to the state
+    setMessages(prevMessages => [...prevMessages, newMessage]);
+
+    try {
+      setIsTyping(true);
+      // Make a POST request to the /api/ai endpoint
+      const requestBody = { prompt: message, mode: 'default' };
+      const response = await axios.post('http://localhost:3005/api/ai', requestBody);
+
+      // Get the AI's reply from the response
+      const aiReply = response.data.choices[0].message.content;
+
+      const AIReply = {
+        sender: 'AI',
+        content: aiReply,
+      };
+
+      // Add AI's reply to the state
+      setMessages(prevMessages => [...prevMessages, AIReply]);
+      setIsTyping(false);
+    } catch (error) {
+      console.error(error);
+      setIsTyping(false);
+    }
+  };
+
   return (
-    <Grid container spacing={2} justifyContent="center" style={{ marginTop: '1rem' }}>
-      <form onSubmit={handleFormSubmit} style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
-        <Grid item xs={8}>
+    <form onSubmit={handleFormSubmit}>
+      <Grid container spacing={2}>
+        <Grid item xs={9}>
           <TextField
             fullWidth
             id="outlined-basic"
@@ -23,7 +56,7 @@ const DefaultChatInput = ({ handleSend }) => {
             onChange={e => setUserMessage(e.target.value)}
           />
         </Grid>
-        <Grid item xs={4}>
+        <Grid item xs={3}>
           <Button
             fullWidth
             variant="contained"
@@ -34,8 +67,8 @@ const DefaultChatInput = ({ handleSend }) => {
             Send
           </Button>
         </Grid>
-      </form>
-    </Grid>
+      </Grid>
+    </form>
   );
 };
 
