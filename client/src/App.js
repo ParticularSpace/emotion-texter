@@ -13,17 +13,17 @@ import Register from './components/Register';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#000000',  // Black color
+      main: '#000000',  
     },
     secondary: {
-      main: '#FFFFFF',  // White color
+      main: '#FFFFFF',  
     },
   },
   typography: {
     fontFamily: 'Arial',
   },
   shape: {
-    borderRadius: 15,  // rounded edges
+    borderRadius: 15,  
   },
 });
 

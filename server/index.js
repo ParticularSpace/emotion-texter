@@ -1,19 +1,17 @@
 const express = require('express');
 const http = require('http');
-const socketio = require('socket.io');
 const mongoose = require('mongoose');
 require('dotenv').config();
+const cors = require('cors');
 
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server);
 
-const openai = require('openai');
-openai.apiKey = process.env.OPENAI_API_KEY;
 
 // This will parse JSON bodies
 app.use(express.json());
+app.use(cors());
 
 // MongoDB connection
 mongoose.connect('mongodb://localhost:27017/chat-app', { 
@@ -54,46 +52,17 @@ app.post('/login', async (req, res) => {
     res.json({ message: 'Logged in successfully.' });
 });
 
-const Message = require('./models/Message');
+// AI Config
+const aiRoute = require('./routes/ai');
 
-// Socket connection
-io.on('connection', socket => {
-    console.log('New user connected');
+// AI route
+app.use('/api/ai', aiRoute);
 
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
-    });
-
-    // Message handling
-    socket.on('message', async ({ sender, recipient, content }) => {
-        try {
-            // Analyze the sentiment of the content
-            const analysis = await openai.Completion.create({
-                engine: 'text-davinci-002',
-                prompt: `Is the following message positive, negative, or neutral? "${content}"`,
-                max_tokens: 3,
-            });
-
-            const sentiment = analysis.choices[0].text.trim();
-
-            // Create a new message with the sentiment
-            const message = new Message({
-                sender,
-                recipient,
-                content,
-                sentiment,
-            });
-
-            // Save the message to the database
-            await message.save();
-
-            // Send the message to the recipient
-            io.to(recipient).emit('message', message);
-        } catch (err) {
-            console.error(err);
-        }
-    });
-});
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send({ error: 'An error occurred while processing your request.' });
+  });
+  
 
 const PORT = process.env.PORT || 3005;
 server.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

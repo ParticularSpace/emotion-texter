@@ -19,7 +19,7 @@ const Header = () => {
     <StyledAppBar position="static" color="default">
       <Toolbar>
         <Typography variant="h6" style={{ flexGrow: 1 }}>
-          <StyledLink to="/">Emotion Texter</StyledLink>
+          <StyledLink to="/">Chat Bot</StyledLink>
         </Typography>
         <Button color="inherit">
           <StyledLink to="/tryit">Try It</StyledLink>
