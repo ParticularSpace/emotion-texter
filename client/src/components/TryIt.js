@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Box, Card, TextField, Typography, Button, Grid } from '@mui/material';
+import { Box, Card, TextField, Typography, Button, Grid, Select, MenuItem } from '@mui/material';
 import styled from 'styled-components';
 import axios from 'axios';
 
@@ -60,10 +60,26 @@ const Message = styled(Box)`
 const TryIt = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [userMessage, setUserMessage] = useState('');
+  const [mode, setMode] = useState('default');
+
+  const handleModeChange = (event) => {
+    setMode(event.target.value);
+  };
+
+  if (mode === 'translation') {
+    // Render translation-specific components or change chat behavior
+  } else if (mode === 'stocks') {
+    // Render stock-specific components or change chat behavior
+  } else {
+    // Default chat behavior
+  }
+  
+
+
   const [messages, setMessages] = useState([
     {
       sender: 'AI',
-      content: 'Welcome to Emotion Texter! How are you feeling today?',
+      content: 'Hey! How are you doing?',
     },
   ]);
 
@@ -137,9 +153,20 @@ const TryIt = () => {
 
   return (
     <ChatContainer>
-      <Typography variant="h4" gutterBottom>
-        Chat with our AI
-      </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={2}>
+        <Typography variant="h4" gutterBottom>
+          Chat with our AI
+        </Typography>
+        <Select
+          value={mode}
+          onChange={handleModeChange}
+          variant="outlined"
+        >
+          <MenuItem value="default">Default</MenuItem>
+          <MenuItem value="translation">Translation</MenuItem>
+          <MenuItem value="stocks">Stocks</MenuItem>
+        </Select>
+      </Box>
       <ChatWindow>
         {messages.map((message, index) => (
           <Message key={index}>
