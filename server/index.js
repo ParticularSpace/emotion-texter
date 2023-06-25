@@ -27,6 +27,7 @@ const bcrypt = require('bcryptjs');
  
 // Registration route
 app.post('/register', async (req, res) => {
+    console.log('register route hit');
     const { username, password } = req.body;
 
     const user = await User.findOne({ username });

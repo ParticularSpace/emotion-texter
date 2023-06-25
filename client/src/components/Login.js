@@ -32,12 +32,14 @@ function Login() {
       password
     };
 
+
     try {
-      const response = await axios.post('http://localhost:5000/login', user);
+      const response = await axios.post('http://localhost:3005/login', user);
       if (response.data.error) {
         setError(response.data.error);
       } else {
-        // Handle successful login. Redirect, show message, etc.
+        // Redirect to the /tryit route
+        window.location.href = '/tryit';
       }
     } catch(err) {
       setError('Something went wrong.');

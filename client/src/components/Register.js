@@ -43,8 +43,10 @@ function Register() {
       password
     };
 
+    console.log(user, 'user')
+
     try {
-      await axios.post('http://localhost:5000/register', user);
+      await axios.post('http://localhost:3005/register', user);
     } catch (error) {
       setErrorMessage(error.response.data.error);
       setOpen(true);
