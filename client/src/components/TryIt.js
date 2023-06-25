@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Box, Card, TextField, Typography, Button, Grid, Select, MenuItem } from '@mui/material';
+import { Box, Card, Typography, Select, MenuItem } from '@mui/material';
 import styled from 'styled-components';
 import axios from 'axios';
+import StocksChatInput from './StocksChatInput';
+import TranslationChatInput from './TranslationChatInput';
+import DefaultChatInput from './DefaultChatInput.js';
 
 
 const BouncingDot = styled('span')({
@@ -24,8 +27,6 @@ const BouncingDot = styled('span')({
     },
   },
 });
-
-
 
 const ChatContainer = styled(Card)`
   display: flex;
@@ -57,24 +58,17 @@ const Message = styled(Box)`
 
 
 
+
+
 const TryIt = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [userMessage, setUserMessage] = useState('');
+  const [language, setLanguage] = useState('en');
   const [mode, setMode] = useState('default');
 
   const handleModeChange = (event) => {
     setMode(event.target.value);
   };
-
-  if (mode === 'translation') {
-    // Render translation-specific components or change chat behavior
-  } else if (mode === 'stocks') {
-    // Render stock-specific components or change chat behavior
-  } else {
-    // Default chat behavior
-  }
-  
-
 
   const [messages, setMessages] = useState([
     {
@@ -85,71 +79,11 @@ const TryIt = () => {
 
   const messagesEndRef = useRef(null);
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault(); // Prevent the form from refreshing the page
-    handleSend();
-  };
-
-
-  const handleSend = async () => {
-    const newMessage = {
-      sender: 'You',
-      content: userMessage,
-    };
-
-    // Add user's message to the state
-    setMessages(prevMessages => [...prevMessages, newMessage]);
-
-    try {
-      setIsTyping(true);
-      // Make a POST request to the /api/ai endpoint
-      const response = await axios.post('http://localhost:3005/api/ai', { prompt: userMessage });
-
-
-
-      // Get the AI's reply from the response
-      // The AI's reply is in the 'choices' array in the response data
-      // We're assuming that there's only one choice (which is the case if you didn't specify 'max_responses' in your API call)
-      const aiReply = response.data.choices[0].message.content;
-
-      const AIReply = {
-        sender: 'AI',
-        content: aiReply,
-      };
-
-      // Add AI's reply to the state
-      setMessages(prevMessages => [...prevMessages, AIReply]);
-      setIsTyping(false);
-    } catch (error) {
-      console.error(error);
-      if (error.response) {
-        setIsTyping(false);
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        console.error('Response data:', error.response.data);
-        console.error('Response status:', error.response.status);
-        console.error('Response headers:', error.response.headers);
-      } else if (error.request) {
-        // The request was made but no response was received
-        console.error('Request:', error.request);
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        console.error('Error message:', error.message);
-      }
-    }
-
-    setUserMessage('');
-  };
-
-
-
-
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
-
 
   return (
     <ChatContainer>
@@ -186,33 +120,13 @@ const TryIt = () => {
         )}
         <div ref={messagesEndRef} />
       </ChatWindow>
-      <Grid container spacing={2}  justifyContent="center" style={{marginTop: '1rem'}}>
-  <form onSubmit={handleFormSubmit} style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
-    <Grid item xs={8}>
-      <TextField
-        fullWidth
-        id="outlined-basic"
-        label="Type your message here..."
-        variant="outlined"
-        value={userMessage}
-        onChange={e => setUserMessage(e.target.value)}
-      />
-    </Grid>
-    <Grid item xs={4} >
-      <Button
-        fullWidth
-        variant="contained"
-        color="primary"
-        type="submit" 
-        disabled={!userMessage}
-      >
-        Send
-      </Button>
-    </Grid>
-  </form>
-</Grid>
+      {mode === 'default' && <DefaultChatInput setMessages={setMessages} setIsTyping={setIsTyping} />}
+{mode === 'translation' && <TranslationChatInput setMessages={setMessages} setIsTyping={setIsTyping} />}
+{mode === 'stocks' && <StocksChatInput setMessages={setMessages} setIsTyping={setIsTyping} />}
+
     </ChatContainer>
   );
 };
+
 
 export default TryIt;
