@@ -9,6 +9,8 @@ Install Necessary Libraries: You'll need several libraries for your project, inc
 
 Set Up Server-Side Code (Back-End):
 
+X0Y8DRXQMGTRDPI8
+
 Create a new folder named "server". Inside this folder, create an index.js file.
 In index.js, set up an Express server and configure it to use Socket.IO for real-time communication.
 Create models using Mongoose for User and Message data.

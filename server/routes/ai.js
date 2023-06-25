@@ -12,20 +12,31 @@ router.post('/', async (req, res) => {
     try {
         const prompt = req.body.prompt;
         const language = req.body.language; // Get the target language from the request body
+        const mode = req.body.mode; // Get the mode from the request body
 
         let response;
-        if (language) {
-            // If a target language is specified, use the createCompletion endpoint for translation
+        if (mode === 'translation') {
+            // If the mode is 'translation', use the createCompletion endpoint for translation
             response = await openai.createCompletion({
                 model: "text-davinci-003",
                 prompt: `Translate this English text to ${language}: ${prompt}`,
                 temperature: 0.3,
                 max_tokens: 60
             });
+        } else if (mode === 'stocks') {
+            // If the mode is 'stocks', use the createCompletion endpoint for stock analysis
+            // You'll need to modify this to suit your needs
+            response = await openai.createCompletion({
+                model: "text-davinci-003",
+                prompt: `Analyze the stock: ${prompt}`,
+                temperature: 0.3,
+                max_tokens: 2000
+            });
         } else {
-            // If no target language is specified, use the createChatCompletion endpoint as before
+            // If no specific mode is specified, use the createChatCompletion endpoint as before
             response = await openai.createChatCompletion({
                 model: "gpt-4", 
+                temperature: 0.7,
                 messages: [
                     {
                         role: "system",
@@ -45,7 +56,5 @@ router.post('/', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while processing your request.' });
     }
 });
-
-  
 
 module.exports = router;
