@@ -5,6 +5,7 @@ import axios from 'axios';
 import StocksChatInput from './StocksChatInput';
 import TranslationChatInput from './TranslationChatInput';
 import DefaultChatInput from './DefaultChatInput.js';
+import SpeechInput from './SpeechInput.js';
 
 
 const BouncingDot = styled('span')({
@@ -99,6 +100,7 @@ const TryIt = () => {
           <MenuItem value="default">Default</MenuItem>
           <MenuItem value="translation">Translation</MenuItem>
           <MenuItem value="stocks">Stocks</MenuItem>
+          <MenuItem value="speech">Speech</MenuItem>
         </Select>
       </Box>
       <ChatWindow>
@@ -121,8 +123,9 @@ const TryIt = () => {
         <div ref={messagesEndRef} />
       </ChatWindow>
       {mode === 'default' && <DefaultChatInput setMessages={setMessages} setIsTyping={setIsTyping} />}
-{mode === 'translation' && <TranslationChatInput setMessages={setMessages} setIsTyping={setIsTyping} />}
-{mode === 'stocks' && <StocksChatInput setMessages={setMessages} setIsTyping={setIsTyping} />}
+      {mode === 'translation' && <TranslationChatInput setMessages={setMessages} setIsTyping={setIsTyping} />}
+      {mode === 'stocks' && <StocksChatInput setMessages={setMessages} setIsTyping={setIsTyping} />}
+      {mode === 'speech' && <SpeechInput setMessages={setMessages} setIsTyping={setIsTyping} />}
 
     </ChatContainer>
   );

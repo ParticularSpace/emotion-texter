@@ -13,6 +13,7 @@ router.post('/', async (req, res) => {
         const prompt = req.body.prompt;
         const language = req.body.language; // Get the target language from the request body
         const mode = req.body.mode; // Get the mode from the request body
+        const audio = req.body.audio; // Get the audio data from the request body
 
         let response;
         if (mode === 'translation') {
@@ -32,7 +33,29 @@ router.post('/', async (req, res) => {
                 temperature: 0.3,
                 max_tokens: 2000
             });
-        } else {
+        } else if (mode === 'speech') {
+            console.log('speech mode hit');
+            console.log(req.body, 'req.body');
+            // If the mode is 'speech', use the Whisper ASR API to transcribe the audio
+            // Then use the transcribed text as the prompt for the GPT-4 model
+            const audioFile = req.body.audio; // Get the audio data from the request body
+            const transcription = await openai.Audio.transcribe("whisper-1", audioFile);
+            response = await openai.createChatCompletion({
+                model: "gpt-4", 
+                temperature: 0.7,
+                messages: [
+                    {
+                        role: "system",
+                        content: "You are a helpful assistant."
+                    },
+                    {
+                        role: "user",
+                        content: transcription.text
+                    }
+                ],
+            });
+        }
+         else {
             // If no specific mode is specified, use the createChatCompletion endpoint as before
             response = await openai.createChatCompletion({
                 model: "gpt-4", 
@@ -56,5 +79,6 @@ router.post('/', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while processing your request.' });
     }
 });
+
 
 module.exports = router;
