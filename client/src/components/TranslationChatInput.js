@@ -53,7 +53,7 @@ const TranslationChatInput = ({ handleSend: sendToServer, setMessages, setIsTypi
             <TextField
               fullWidth
               id="outlined-basic"
-              label="Type your message here..."
+              label="Type message to translate here..."
               variant="outlined"
               value={userMessage}
               onChange={e => setUserMessage(e.target.value)}

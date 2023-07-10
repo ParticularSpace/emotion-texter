@@ -3,6 +3,7 @@ import { ReactMic } from 'react-mic';
 import axios from 'axios';
 
 function SpeechInput() {
+    console.log('SpeechInput');
   const [isRecording, setIsRecording] = useState(false);
   const [recordedBlob, setRecordedBlob] = useState(null);
 
@@ -24,15 +25,23 @@ function SpeechInput() {
   };
 
   const handleSend = async () => {
+    console.log('handleSend');
     if (recordedBlob) {
       try {
         // Convert the recorded audio to a file
-        const audioFile = new File([recordedBlob.blob], 'audio.mp3', { type: 'audio/mp3' });
+        const audioFile = new File([recordedBlob.blob], 'audio.webm', { type: 'audio/webm' });
 
+        console.log(audioFile, 'audioFile');
 
         // Create a FormData object and append the audio file
         const formData = new FormData();
         formData.append('audio', audioFile);
+
+        // Append other expected data
+        formData.append('prompt', 'test prompt');
+        
+        formData.append('mode', 'speech');  
+
 
         // Send the audio file to your server
         const response = await axios.post('http://localhost:3005/api/ai', formData, {
@@ -47,6 +56,7 @@ function SpeechInput() {
       }
     }
   };
+
 
   return (
     <div>

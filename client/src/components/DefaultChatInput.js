@@ -3,6 +3,7 @@ import { TextField, Button, Grid } from '@mui/material';
 import axios from 'axios';
 
 const DefaultChatInput = ({ setMessages, setIsTyping }) => {
+  console.log('DefaultChatInput');
   const [userMessage, setUserMessage] = useState('');
 
   const handleFormSubmit = (e) => {
