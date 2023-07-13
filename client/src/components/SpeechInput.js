@@ -1,49 +1,47 @@
 import React, { useState } from 'react';
-import { ReactMic } from 'react-mic';
 import axios from 'axios';
 
-function SpeechInput() {
-    console.log('SpeechInput');
+function SpeechInput({ setMessages }) {
   const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
   const [recordedBlob, setRecordedBlob] = useState(null);
+  const [transcript, setTranscript] = useState(null);
+  const [aiResponse, setAiResponse] = useState(null);
 
   const startRecording = () => {
-    setIsRecording(true);
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+        setMediaRecorder(mediaRecorder);
+        mediaRecorder.start();
+        setIsRecording(true);
+
+        const audioChunks = [];
+        mediaRecorder.addEventListener("dataavailable", event => {
+          audioChunks.push(event.data);
+        });
+
+        mediaRecorder.addEventListener("stop", () => {
+          const audioBlob = new Blob(audioChunks);
+          setRecordedBlob(audioBlob);
+        });
+      });
   };
 
   const stopRecording = () => {
-    setIsRecording(false);
-  };
-
-  const onData = (recordedBlob) => {
-    console.log('chunk of real-time data is: ', recordedBlob);
-  };
-
-  const onStop = (recordedBlob) => {
-    console.log('recordedBlob is: ', recordedBlob);
-    setRecordedBlob(recordedBlob);
+    if (mediaRecorder) {
+      mediaRecorder.stop();
+      setIsRecording(false);
+    }
   };
 
   const handleSend = async () => {
-    console.log('handleSend');
     if (recordedBlob) {
       try {
-        // Convert the recorded audio to a file
-        const audioFile = new File([recordedBlob.blob], 'audio.webm', { type: 'audio/webm' });
-
-        console.log(audioFile, 'audioFile');
-
-        // Create a FormData object and append the audio file
         const formData = new FormData();
-        formData.append('audio', audioFile);
+        formData.append('audio', recordedBlob);
+        formData.append('mode', 'speech');
 
-        // Append other expected data
-        formData.append('prompt', 'test prompt');
-        
-        formData.append('mode', 'speech');  
-
-
-        // Send the audio file to your server
         const response = await axios.post('http://localhost:3005/api/ai', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
@@ -51,6 +49,20 @@ function SpeechInput() {
         });
 
         console.log(response.data);
+
+        // Update the AI response state
+        const aiMessage = response.data.aiResponse.choices[0].message.content;
+        setAiResponse(aiMessage);
+
+        const transcript = response.data.transcript;
+        setTranscript(transcript);
+
+        // Update the messages state in the parent component
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { sender: 'User', content: transcript },
+          { sender: 'AI', content: aiMessage },
+        ]);
       } catch (error) {
         console.error(error);
       }
@@ -60,18 +72,10 @@ function SpeechInput() {
 
   return (
     <div>
-      <ReactMic
-        record={isRecording}
-        className="sound-wave"
-        onStop={onStop}
-        onData={onData}
-        strokeColor="#000000"
-        backgroundColor="#FF4081" />
-      <button onClick={startRecording} type="button">Start</button>
-      <button onClick={stopRecording} type="button">Stop</button>
+      <button onClick={isRecording ? stopRecording : startRecording} type="button">
+        {isRecording ? "Recording..." : "Start"}
+      </button>
       <button onClick={handleSend} type="button">Send</button>
-      {recordedBlob && <a href={recordedBlob.blobURL} target="_blank" rel="noreferrer">Download</a>}
-
     </div>
   );
 }

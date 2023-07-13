@@ -4,7 +4,7 @@ const multer = require('multer');
 const { Configuration, OpenAIApi } = require('openai');
 const speech = require('@google-cloud/speech');
 
-process.env['GOOGLE_APPLICATION_CREDENTIALS']='/Users/Sam/Documents/unified-coyote-392422-b52e5d16b216.json';
+process.env['GOOGLE_APPLICATION_CREDENTIALS'] = '/Users/Sam/Documents/unified-coyote-392422-b52e5d16b216.json';
 
 const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY
@@ -40,15 +40,13 @@ router.post('/', upload.single('audio'), async (req, res) => {
                 max_tokens: 2000
             });
         } else if (mode === 'speech') {
-            console.log('speech mode hit');
-            // If the mode is 'speech', use the Google Speech-to-Text API to transcribe the audio
-            // Then use the transcribed text as the prompt for the GPT-4 model
-            const audioFile = req.file; // Get the audio data from 
 
-            console.log(audioFile, 'audioFile');
+            // Get the audio file buffer from the response
+            const audioBuffer = req.file.buffer;
 
             // Convert the buffer to a base64 string
-            const audioBase64 = audioFile.buffer.toString('base64');
+            const audioBase64 = audioBuffer.toString('base64');
+
 
             // Create a new Speech-to-Text client
             const client = new speech.SpeechClient();
@@ -58,32 +56,26 @@ router.post('/', upload.single('audio'), async (req, res) => {
                 content: audioBase64,
             };
             const config = {
-                encoding: 'OGG_OPUS',
+                encoding: 'WEBM_OPUS',
                 sampleRateHertz: 48000,
                 languageCode: 'en-US',
             };
-            
 
             // The transcription request
             const request = {
-                audio: audio.content,
+                audio: audio,
                 config: config,
             };
 
-            console.log('request', request);
-
             // Transcribe the audio
             const [transcription] = await client.recognize(request);
-            console.log('Transcription: ', transcription.results);
             const transcript = transcription.results
                 .map(result => result.alternatives[0].transcript)
                 .join('\n');
 
-            console.log(transcript, 'transcript');
-
             // Use the transcribed text as the prompt for the GPT-4 model
             response = await openai.createChatCompletion({
-                model: "gpt-4", 
+                model: "gpt-4",
                 temperature: 0.7,
                 messages: [
                     {
@@ -96,10 +88,14 @@ router.post('/', upload.single('audio'), async (req, res) => {
                     }
                 ],
             });
+
+            // Include the transcribed text in the response
+            return res.json({ transcript: transcript, aiResponse: response.data });
+
         } else {
             // If no specific mode is specified, use the createChatCompletion endpoint as before
             response = await openai.createChatCompletion({
-                model: "gpt-4", 
+                model: "gpt-4",
                 temperature: 0.7,
                 messages: [
                     {
@@ -114,7 +110,7 @@ router.post('/', upload.single('audio'), async (req, res) => {
             });
         }
 
-        res.json(response.data);
+        return res.json(response.data);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'An error occurred while processing your request.' });
