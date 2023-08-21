@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Box, Card, Typography, Select, MenuItem } from '@mui/material';
 import styled from 'styled-components';
-import axios from 'axios';
 import StocksChatInput from './StocksChatInput';
 import TranslationChatInput from './TranslationChatInput';
 import DefaultChatInput from './DefaultChatInput.js';

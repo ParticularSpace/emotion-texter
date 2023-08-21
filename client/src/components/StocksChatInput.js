@@ -16,26 +16,26 @@ const StocksChatInput = ({ setMessages, setIsTyping }) => {
       sender: 'You',
       content: ticker,
     };
-
+  
     // Add user's message to the state
     setMessages(prevMessages => [...prevMessages, newMessage]);
-
+  
     try {
       setIsTyping(true);
       // Make a POST request to the /api/ai endpoint
       const requestBody = { prompt: ticker, mode: 'stocks' };
       const response = await axios.post('http://localhost:3005/api/ai', requestBody);
-
+  
       console.log(response.data);
-
+  
       // Get the AI's reply from the response
-      const aiReply = response.data.choices[0].text;
-
+      const aiReply = response.data.analysis; // Corrected line
+  
       const AIReply = {
         sender: 'AI',
         content: aiReply,
       };
-
+  
       // Add AI's reply to the state
       setMessages(prevMessages => [...prevMessages, AIReply]);
       setIsTyping(false);
@@ -44,6 +44,7 @@ const StocksChatInput = ({ setMessages, setIsTyping }) => {
       setIsTyping(false);
     }
   };
+  
 
   return (
     <form onSubmit={handleFormSubmit}>
